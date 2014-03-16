@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  
  */
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 typedef enum {
 	TKProgressBarViewStyleLong,
@@ -51,7 +51,7 @@ typedef enum {
 - (id) initWithStyle:(TKProgressBarViewStyle)style;
 
 /** The progress. */
-@property (nonatomic,assign) float progress; // a value between 0.0 and 1.0
+@property (assign,nonatomic) float progress; // a value between 0.0 and 1.0
 
 
 /**

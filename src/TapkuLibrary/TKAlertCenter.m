@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -31,9 +31,9 @@
 
 #import "TKAlertCenter.h"
 #import "UIView+TKCategory.h"
-#import "TKGlobal.h"
 
-#pragma mark - TKAlertView
+
+#pragma mark -
 @interface TKAlertView : UIView {
 	CGRect _messageRect;
 	NSString *_text;
@@ -47,6 +47,7 @@
 @end
 
 
+#pragma mark -
 @implementation TKAlertView
 
 - (id) init{
@@ -56,6 +57,8 @@
 	return self;
 	
 }
+
+
 
 - (void) _drawRoundRectangleInRect:(CGRect)rect withRadius:(CGFloat)radius{
 	CGContextRef context = UIGraphicsGetCurrentContext();
@@ -73,6 +76,10 @@
 	CGContextClosePath(context);
 	CGContextDrawPath(context, kCGPathFill);
 }
+
+
+
+
 - (void) drawRect:(CGRect)rect{
 	[[UIColor colorWithWhite:0 alpha:0.8] set];
 	[self _drawRoundRectangleInRect:rect withRadius:10];
@@ -124,12 +131,13 @@
 
 @end
 
-#pragma mark - TKAlertCenter
+
+#pragma mark -
 @implementation TKAlertCenter
 
 #pragma mark Init & Friends
 + (TKAlertCenter*) defaultCenter {
-	__strong static TKAlertCenter *defaultCenter = nil;
+	static TKAlertCenter *defaultCenter = nil;
 	if (!defaultCenter) {
 		defaultCenter = [[TKAlertCenter alloc] init];
 	}
@@ -143,7 +151,7 @@
 	_active = NO;
 	
 	
-	_alertFrame = [UIScreen mainScreen].applicationFrame;
+	_alertFrame = [UIApplication sharedApplication].keyWindow.bounds;
 
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillAppear:) name:UIKeyboardWillShowNotification object:nil];
@@ -152,9 +160,7 @@
 
 	return self;
 }
-- (void) dealloc{
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
-}
+
 
 #pragma mark Show Alert Message
 - (void) showAlerts{
@@ -171,14 +177,14 @@
 
 	
 	
-	NSArray *ar = _alerts[0];
+	NSArray *ar = [_alerts objectAtIndex:0];
 	
 	UIImage *img = nil;
-	if([ar count] > 1) img = _alerts[0][1];
+	if([ar count] > 1) img = [[_alerts objectAtIndex:0] objectAtIndex:1];
 	
 	[_alertView setImage:img];
 
-	if([ar count] > 0) [_alertView setMessageText:_alerts[0][0]];
+	if([ar count] > 0) [_alertView setMessageText:[[_alerts objectAtIndex:0] objectAtIndex:0]];
 	
 	
 	
@@ -199,12 +205,13 @@
 	_alertView.transform = CGAffineTransformScale(_alertView.transform, 2, 2);
 	
 	
+	
 	[UIView beginAnimations:nil context:nil];
 	[UIView setAnimationDuration:0.15];
 	[UIView setAnimationDelegate:self];
 	[UIView setAnimationDidStopSelector:@selector(animationStep2)];
 	_alertView.transform = CGAffineTransformMakeRotation(degrees * M_PI / 180);
-	_alertView.frame = CGRectIntegral(_alertView.frame);
+	_alertView.frame = CGRectMake((int)_alertView.frame.origin.x, (int)_alertView.frame.origin.y, _alertView.frame.size.width, _alertView.frame.size.height);
 	_alertView.alpha = 1;
 	[UIView commitAnimations];
 	
@@ -216,8 +223,8 @@
 	// depending on how many words are in the text
 	// change the animation duration accordingly
 	// avg person reads 200 words per minute
-	NSArray * words = [_alerts[0][0] componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-	double duration = MAX(((double)[words count]*60.0/200.0),1.4f);
+	NSArray * words = [[[_alerts objectAtIndex:0] objectAtIndex:0] componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+	double duration = MAX(((double)[words count]*60.0/200.0),1);
 	
 	[UIView setAnimationDelay:duration];
 	[UIView setAnimationDelegate:self];
@@ -242,12 +249,7 @@
 	
 }
 - (void) postAlertWithMessage:(NSString*)message image:(UIImage*)image{
-	if(message && image)
-		[_alerts addObject:@[message,image]];
-	else if(message)
-		[_alerts addObject:@[message]];
-	else if(image)
-		[_alerts addObject:@[image]];
+	[_alerts addObject:[NSArray arrayWithObjects:message,image,nil]];
 	if(!_active) [self showAlerts];
 }
 - (void) postAlertWithMessage:(NSString*)message{
@@ -293,9 +295,9 @@ CGRect subtractRect(CGRect wf,CGRect kf){
 - (void) keyboardWillAppear:(NSNotification *)notification {
 	
 	NSDictionary *userInfo = [notification userInfo];
-	NSValue* aValue = userInfo[UIKeyboardFrameEndUserInfoKey];
+	NSValue* aValue = [userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
 	CGRect kf = [aValue CGRectValue];
-	CGRect wf = [UIScreen mainScreen].applicationFrame;
+	CGRect wf = [UIApplication sharedApplication].keyWindow.bounds;
 	
 	[UIView beginAnimations:nil context:nil];
 	_alertFrame = subtractRect(wf,kf);
@@ -305,13 +307,13 @@ CGRect subtractRect(CGRect wf,CGRect kf){
 
 }
 - (void) keyboardWillDisappear:(NSNotification *) notification {
-	_alertFrame = [UIScreen mainScreen].applicationFrame;
+	_alertFrame = [UIApplication sharedApplication].keyWindow.bounds;
 
 }
 - (void) orientationWillChange:(NSNotification *) notification {
 	
 	NSDictionary *userInfo = [notification userInfo];
-	NSNumber *v = userInfo[UIApplicationStatusBarOrientationUserInfoKey];
+	NSNumber *v = [userInfo objectForKey:UIApplicationStatusBarOrientationUserInfoKey];
 	UIInterfaceOrientation o = [v intValue];
 	
 	

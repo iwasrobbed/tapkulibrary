@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || https://github.com/devinross/tapkulibrary
+ tapku.com || https://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -36,17 +36,26 @@
 
 
 + (TKNetworkQueue*) sharedNetworkQueue{
-	__strong static TKNetworkQueue *sharedInstance = nil;
+	static TKNetworkQueue *sharedInstance = nil;
 	if (!sharedInstance) {
 		sharedInstance = [[TKNetworkQueue alloc] init];
+		
 		[sharedInstance setMaxConcurrentOperationCount:4];
+
+		
 	}
 	return sharedInstance;
 }
 + (TKNetworkQueue*) networkQueue{
 	return [[self alloc] init];
 }
-
+- (id) init{
+	if(!(self=[super init])) return nil;
+	
+	
+	
+	return self;
+}
 
 - (void) reset{
 	

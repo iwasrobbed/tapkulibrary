@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || https://github.com/devinross/tapkulibrary
+ tapku.com || https://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  
  */
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 
 @class TKHTTPRequest;
 

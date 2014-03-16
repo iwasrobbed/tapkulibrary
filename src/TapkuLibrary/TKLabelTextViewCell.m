@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -61,20 +61,15 @@
 
 }
 
-- (void) _colorText:(BOOL)active animated:(BOOL)animated{
-	if(animated)
-		[UIView beginAnimations:nil context:nil];
-	_textView.textColor = active ? [UIColor whiteColor] : [UIColor grayColor];
-	if(animated)
-		[UIView commitAnimations];
-}
+
 - (void) setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
-	[self _colorText:selected animated:animated];
+	_textView.textColor = selected ? [UIColor whiteColor] : [UIColor grayColor];
+
 }
 - (void) setHighlighted:(BOOL)highlighted animated:(BOOL)animated{
 	[super setHighlighted:highlighted animated:animated];
-	[self _colorText:highlighted animated:animated];
+	_textView.textColor = highlighted ? [UIColor whiteColor] : [UIColor grayColor];
 }
 
 

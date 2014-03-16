@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  
  */
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 
 /** 
@@ -43,6 +43,6 @@
 ///----------------------------
 
 /** A `UILabel` that will be a title for the core view. */
-@property (nonatomic,strong) UILabel *label;
+@property (strong,nonatomic) UILabel *label;
 
 @end

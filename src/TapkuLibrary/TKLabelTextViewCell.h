@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -38,6 +38,6 @@
 
 
 /** A `UITextView` field. */
-@property (nonatomic,strong) UITextView *textView;
+@property (strong, nonatomic) UITextView *textView;
 
 @end

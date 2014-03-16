@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -28,12 +28,12 @@
  OTHER DEALINGS IN THE SOFTWARE.
  
  */
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 /** A `UITableViewCell` with a `UISwitch` */
 @interface TKSwitchCell : UITableViewCell 
 
 /** A `UISwitch`. */
-@property (nonatomic,strong) UISwitch *switcher;
+@property (strong, nonatomic) UISwitch *switcher;
 
 @end

@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  
  */
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 
 /** Additional functionality for `NSString`.  */
 @interface NSString (TKCategory)
@@ -70,10 +70,6 @@
  @return `YES` if the substring is contained in the string, otherwise `NO`.
  */
 - (BOOL) hasString:(NSString*)substring;
-
-
-
-- (NSString*) formattedPhoneNumberWithLastCharacterRemoved:(BOOL)deleteLastChar;
 
 
 @end

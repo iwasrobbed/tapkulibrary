@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -30,8 +30,8 @@
  */
 
 
-@import UIKit;
-@import QuartzCore;
+#import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 
 
 /** This class implements `UIView` backed by a `CAGradientLayer`. */
@@ -42,23 +42,23 @@
 ///----------------------------
 
 /** An array of `UIColor` objects defining the color of each gradient stop. */
-@property (nonatomic,strong) NSArray *colors;
+@property (strong,nonatomic) NSArray *colors;
 
 /** An optional array of NSNumber objects defining the location of each gradient stop. */
-@property (nonatomic,strong) NSArray *locations;
+@property (strong,nonatomic) NSArray *locations;
 
 
 /**
  The start point corresponds to the first stop of the gradient. The point is defined in the unit coordinate space and is then mapped to the layer’s bounds rectangle when drawn.
  Default value is (0.5,0.0).
 */
-@property (nonatomic,assign) CGPoint startPoint;
+@property (assign,nonatomic) CGPoint startPoint;
 
 
 /** The end point of the gradient when drawn in the layer’s coordinate space. */
-@property (nonatomic,assign) CGPoint endPoint;
+@property (assign,nonatomic) CGPoint endPoint;
 
 /** Style of gradient drawn by the layer. */
-@property (nonatomic,copy) NSString *type;
+@property (copy,nonatomic) NSString *type;
 
 @end

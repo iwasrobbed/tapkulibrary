@@ -5,7 +5,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -30,8 +30,8 @@
  
 */
 
-@import UIKit;
-@import QuartzCore;
+#import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 
 /** This class implements `UIView` backed by a `CAShapeLayer`. */
 @interface TKShapeView : UIView

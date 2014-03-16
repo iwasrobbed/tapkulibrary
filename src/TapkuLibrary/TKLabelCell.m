@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -41,7 +41,6 @@
 	_label.backgroundColor = [UIColor clearColor];
     _label.textAlignment = NSTextAlignmentRight;
     _label.textColor = [UIColor grayColor];
-	_label.highlightedTextColor = [UIColor whiteColor];
     _label.font = [UIFont boldSystemFontOfSize:12.0];
     _label.adjustsFontSizeToFitWidth = YES;
     _label.baselineAdjustment = UIBaselineAdjustmentNone;
@@ -67,6 +66,19 @@
 		
 	
 }
+
+
+
+- (void) setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+	_label.textColor = selected ? [UIColor whiteColor] : [UIColor grayColor];
+}
+- (void) setHighlighted:(BOOL)highlighted animated:(BOOL)animated{
+	[super setHighlighted:highlighted animated:animated];
+	_label.textColor = highlighted ? [UIColor whiteColor] : [UIColor grayColor];
+}
+
+
 
 
 

@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -119,9 +119,7 @@
 	CGContextAddArcToPoint(context, maxx, maxy, midx, maxy, radius);
 	CGContextAddArcToPoint(context, minx, maxy, minx, midy, radius);
 	CGContextClosePath(context);
-	CGContextSetStrokeColorWithColor(context, self.tintColor.CGColor);
-
-	
+	CGContextSetRGBStrokeColor(context, 1, 1, 1, 1);
 	CGContextSetLineWidth(context, thickness);
 	CGContextDrawPath(context, kCGPathStroke);
 	
@@ -139,7 +137,7 @@
 	CGContextAddArcToPoint(context, maxx, maxy, midx, maxy, radius);
 	CGContextAddArcToPoint(context, minx, maxy, minx, midy, radius);
 	CGContextClosePath(context);
-	CGContextSetFillColorWithColor(context, self.tintColor.CGColor);
+	CGContextSetRGBFillColor(context,1, 1, 1, 1);
 	CGContextDrawPath(context, kCGPathFill);
 	
 	

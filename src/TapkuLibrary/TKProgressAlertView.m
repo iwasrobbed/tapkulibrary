@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -31,43 +31,79 @@
 
 #import "TKProgressAlertView.h"
 #import "UIView+TKCategory.h"
-#import "TKGlobal.h"
 
 @implementation TKProgressAlertView
 
 
 - (id) initWithProgressTitle:(NSString*)txt{
-	if(!(self=[super init])) return nil;
+	if(!(self=[super initWithFrame:CGRectZero])) return nil;
 	self.label.text = txt;
 	return self;
 }
 
-- (void) loadView{
-	[super loadView];
-	[self.alertView addSubview:self.progressBar];
-	[self.alertView addSubview:self.label];
-	self.alertView.frame = CGRectMake(0, 0, CGRectGetWidth(self.alertView.frame), CGRectGetMaxY(self.progressBar.frame) + 14);
+- (void) _drawRoundRectangleInRect:(CGRect)rect withRadius:(CGFloat)radius{
+	CGContextRef context = UIGraphicsGetCurrentContext();
+	
+	CGRect rrect = CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height );
+	CGFloat minx = CGRectGetMinX(rrect), midx = CGRectGetMidX(rrect), maxx = CGRectGetMaxX(rrect);
+	CGFloat miny = CGRectGetMinY(rrect), midy = CGRectGetMidY(rrect), maxy = CGRectGetMaxY(rrect);
+	CGContextMoveToPoint(context, minx, midy);
+	CGContextAddArcToPoint(context, minx, miny, midx, miny, radius);
+	CGContextAddArcToPoint(context, maxx, miny, maxx, midy, radius);
+	CGContextAddArcToPoint(context, maxx, maxy, midx, maxy, radius);
+	CGContextAddArcToPoint(context, minx, maxy, minx, midy, radius);
+	CGContextClosePath(context);
+	CGContextDrawPath(context, kCGPathFill);
 }
 
 
 
-#pragma mark Properties
-- (TKProgressBarView *) progressBar{
-	if(_progressBar) return _progressBar;
 
-	_progressBar = [[TKProgressBarView alloc] initWithStyle:TKProgressBarViewStyleLong];
-	_progressBar.frame = CGRectMakeWithSize(37, 42, _progressBar.frame.size);
+- (void) drawRect:(CGRect)rect{
+	CGRect r = CGRectInset(rect, 6, 0);
+	[[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8] set];
+	[self _drawRoundRectangleInRect:r withRadius:10];
+}
+
+
+- (void) show{
+	[super show];
+	
+	for (UIView *subview in [self subviews]) {
+		if ([subview isKindOfClass:[UIImageView class]])  subview.hidden = YES;
+	}
+	
+	self.backgroundColor = [UIColor clearColor];
+	[self addSubview:self.progressBar];
+	[self addSubview:self.label];
+}
+- (void) hide{
+	[self dismissWithClickedButtonIndex:0 animated:NO];
+}
+
+
+- (TKProgressBarView *) progressBar{
+	if(_progressBar==nil){
+		_progressBar = [[TKProgressBarView alloc] initWithStyle:TKProgressBarViewStyleLong];
+		CGRect r = _progressBar.frame;
+		r.origin.x = 37;
+		r.origin.y = 42;
+		_progressBar.frame = r;
+	}
 	return _progressBar;
 }
 - (UILabel*) label{
-	if(_label) return _label;
-	
-	_label = [[UILabel alloc] initWithFrame:CGRectMake(20, 10, 245, 25)];
-	_label.textAlignment = NSTextAlignmentCenter;
-	_label.backgroundColor = [UIColor clearColor];
-	_label.textColor = [UIColor blackColor];
-	_label.font = [UIFont boldSystemFontOfSize:16];
+	if(_label==nil){
+		_label = [[UILabel alloc] initWithFrame:CGRectMake(20, 10, 245, 25)];
+		_label.textAlignment = NSTextAlignmentCenter;
+		_label.backgroundColor = [UIColor clearColor];
+		_label.textColor = [UIColor whiteColor];
+		_label.font = [UIFont boldSystemFontOfSize:16];		
+	}
 	return _label;
 }
+
+
+
 
 @end

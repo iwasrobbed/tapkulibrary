@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -38,16 +38,16 @@
 
 
 + (id) buttonWithFrame:(CGRect)frame{
-	return [[self class] buttonWithFrame:frame title:nil];
+	return [UIButton buttonWithFrame:frame title:nil];
 }
 + (id) buttonWithFrame:(CGRect)frame title:(NSString*)title{
-	return [[self class] buttonWithFrame:frame title:title backgroundImage:nil];
+	return [UIButton buttonWithFrame:frame title:title backgroundImage:nil];
 }
 + (id) buttonWithFrame:(CGRect)frame title:(NSString*)title backgroundImage:(UIImage*)backgroundImage{
-	return [[self class] buttonWithFrame:frame title:title backgroundImage:backgroundImage highlightedBackgroundImage:nil];
+	return [UIButton buttonWithFrame:frame title:title backgroundImage:backgroundImage highlightedBackgroundImage:nil];
 }
 + (id) buttonWithFrame:(CGRect)frame title:(NSString*)title backgroundImage:(UIImage*)backgroundImage highlightedBackgroundImage:(UIImage*)highlightedBackgroundImage{
-	UIButton *btn = [[self class] buttonWithType:UIButtonTypeCustom];
+	UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
 	btn.frame = frame;
 	[btn setTitle:title forState:UIControlStateNormal];
 	[btn setBackgroundImage:backgroundImage forState:UIControlStateNormal];
@@ -56,10 +56,10 @@
 }
 
 + (id) buttonWithFrame:(CGRect)frame image:(UIImage*)image{
-	return [[self class] buttonWithFrame:frame image:image highlightedImage:nil];
+	return [UIButton buttonWithFrame:frame image:image highlightedImage:nil];
 }
 + (id) buttonWithFrame:(CGRect)frame image:(UIImage*)image highlightedImage:(UIImage*)highlightedImage{
-	UIButton *btn = [[self class] buttonWithType:UIButtonTypeCustom];
+	UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
 	btn.frame = frame;
 	[btn setImage:image forState:UIControlStateNormal];
 	[btn setImage:image forState:UIControlStateHighlighted];

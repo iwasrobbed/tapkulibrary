@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -30,7 +30,7 @@
  */
 
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 #import "TKViewController.h"
 @class TKEmptyView;
 
@@ -43,7 +43,18 @@
  - Built to easily allocate and handle an empty view and search functionality. 
  
  */
-@interface TKTableViewController : TKViewController <UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,UISearchDisplayDelegate>
+@interface TKTableViewController : TKViewController <UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,UISearchDisplayDelegate> {
+	
+	UITableView *_tableView;
+	TKEmptyView *_emptyView;
+	UISearchBar *_searchBar;
+	UISearchDisplayController *_searchBarDisplayController;
+	
+@private
+	UITableViewStyle _style;
+	CGPoint _tableViewContentOffset;
+	
+}
 
 
 /** Initializes a table-view controller to manage a table view of a given style.
@@ -59,22 +70,15 @@
 ///----------------------------
 
 /** Returns the table view managed by the controller object. */
-@property (nonatomic,strong) UITableView *tableView;
-
-/** Returns the table view style. */
-@property (nonatomic,readonly) UITableViewStyle style;
+@property (strong,nonatomic) UITableView *tableView;
 
 /** Returns the empty view. Good for displaying when the content of the table view is empty. */
-@property (nonatomic,strong) TKEmptyView *emptyView;
+@property (strong,nonatomic) TKEmptyView *emptyView;
 
 /** Returns a `UISearchBar` view. */
-@property (nonatomic,strong) UISearchBar *searchBar;
+@property (strong,nonatomic) UISearchBar *searchBar;
 
 /** Returns a `UISearchDisplayController` for the search bar and table view. */
-@property (nonatomic,strong) UISearchDisplayController *searchBarDisplayController;
-
-/** The default value of this property is YES. When YES, the table view controller clears the table’s current selection when it receives a viewWillAppear: message. Setting this property to NO preserves the selection. */
-@property (nonatomic,assign) BOOL clearsSelectionOnViewWillAppear;
-
+@property (strong,nonatomic) UISearchDisplayController *searchBarDisplayController;
 
 @end

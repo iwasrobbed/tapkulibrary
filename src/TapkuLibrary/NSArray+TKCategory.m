@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -35,13 +35,13 @@
 
 - (id) firstObject{
 	if(self.count<1) return nil;
-	return self[0];
+	return [self objectAtIndex:0];
 }
 
 - (id) randomObject{
 	if(self.count<1) return nil;
 
-	return self[arc4random() % [self count]];
+	return [self objectAtIndex:arc4random() % [self count]];
 }
 
 @end

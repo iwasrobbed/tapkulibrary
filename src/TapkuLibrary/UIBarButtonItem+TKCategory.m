@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -48,45 +48,6 @@
 	item.action = s;
 	return item;
 	
-}
-
-
-
-+ (UIBarButtonItem*) doneItemWithTarget:(id)target action:(SEL)action{
-	return [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:target action:action];
-}
-
-+ (UIBarButtonItem*) cancelItemWithTarget:(id)target action:(SEL)action{
-	return [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:target action:action];
-}
-+ (UIBarButtonItem*) saveItemWithTarget:(id)target action:(SEL)action{
-	UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:target action:action];
-	item.style = UIBarButtonItemStyleDone;
-	return item;
-}
-
-+ (UIBarButtonItem*) actionItemWithTarget:(id)target action:(SEL)action{
-	return [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:target action:action];
-}
-
-+ (UIBarButtonItem*) activityItemWithIndicatorStyle:(UIActivityIndicatorViewStyle)style{
-	UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
-	[indicator startAnimating];
-	return [[UIBarButtonItem alloc] initWithCustomView:indicator];
-}
-
-
-+ (UIBarButtonItem*) activityItem{
-	return [UIBarButtonItem activityItemWithIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-}
-
-+ (UIBarButtonItem*) fixedSpaceItemWithWidth:(CGFloat)width{
-	UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
-	item.width = width;
-	return item;
-}
-+ (UIBarButtonItem*) flexibleSpaceItem{
-	return [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
 }
 
 

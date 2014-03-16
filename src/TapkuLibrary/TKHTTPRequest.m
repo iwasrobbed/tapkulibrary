@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || https://github.com/devinross/tapkulibrary
+ tapku.com || https://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -31,7 +31,6 @@
 
 #import "TKHTTPRequest.h"
 #import "TKNetworkQueue.h"
-#import "NSObject+TKCategory.h"
 
 
 typedef enum TKOperationState {
@@ -57,13 +56,22 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
     }
 }
 
-#pragma mark - TKHTTPRequest
-@interface TKHTTPRequest () {
-	NSInteger _totalExpectedImageSize,_receivedDataBytes;
-}
+#pragma mark -
+@interface TKHTTPRequest ()
 
-@property (nonatomic,assign) TKOperationState state;
-@property (nonatomic,readwrite,assign,getter=isCancelled) BOOL cancelled;
+- (void) _completeRequest;
+- (void) _requestFinished;
+
+- (BOOL) removeTemporaryFile;
+- (BOOL) removeDesitinationFile;
++ (BOOL) removeFileAtPath:(NSString *)path error:(NSError **)err;
+
+- (void) _decreaseNetworkActivity;
+- (void) _increaseNetworkActivity;
+
+@property (assign, nonatomic) TKOperationState state;
+@property (readwrite, nonatomic, assign, getter = isCancelled) BOOL cancelled;
+
 @property (nonatomic,strong) NSURLConnection *connection;
 @property (nonatomic,strong) NSMutableData *data;
 @property (nonatomic,strong) NSFileHandle *fileHandler; 	// Used for writing data to a file when downloadDestinationPath is set
@@ -71,10 +79,22 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 @end
 
 
+#pragma mark - 
+
 @implementation TKHTTPRequest
 
+@synthesize URL,tag,showNetworkActivity;
+@synthesize temporaryFileDownloadPath,downloadDestinationPath;
+@synthesize didStartSelector,didFinishSelector,didFailSelector,delegate;
+@synthesize progressDelegate;
+@synthesize statusCode,responseHeaders,error;
+@synthesize cancelled=_cancelled,state = _state;
+@synthesize URLRequest;
+@synthesize connection,data,fileHandler;
 
-#pragma mark Threading
+
+
+#pragma mark - Threading
 + (void) networkRequestThreadEntryPoint:(id)__unused object {
     do {
 		@autoreleasepool{
@@ -95,27 +115,11 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 }
 
 
-#pragma mark Init & Dealloc
-+ (instancetype) requestWithURL:(NSURL*)URL{
+#pragma mark - Init & Dealloc
++ (TKHTTPRequest*) requestWithURL:(NSURL*)URL{
 	return [[self alloc] initWithURL:URL];
 }
-
-+ (instancetype) requestWithURL:(NSURL *)URL responseHandler:(TKResponseBlock)responseHandler{
-	TKHTTPRequest *request = [TKHTTPRequest requestWithURL:URL];
-	request.responseBlock = responseHandler;
-	[request startAsynchronous];
-	return request;
-}
-
-+ (instancetype) requestWithURL:(NSURL *)URL JSONResponseHandler:(TKJSONResponseBlock)responseHandler{
-	TKHTTPRequest *request = [TKHTTPRequest requestWithURL:URL];
-	request.JSONResponseBlock = responseHandler;
-	[request startAsynchronous];
-	return request;
-}
-
-
-- (instancetype) initWithURL:(NSURL*)url{
+- (id) initWithURL:(NSURL*)url{
 	if(!(self=[super init])) return nil;
 	
 	
@@ -126,10 +130,11 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 	
 	return self;
 }
-+ (instancetype) requestWithURLRequest:(NSURLRequest*)request{
+
++ (TKHTTPRequest*) requestWithURLRequest:(NSURLRequest*)request{
 	return [[self alloc] initWithURLRequest:request];
 }
-- (instancetype) initWithURLRequest:(NSURLRequest*)request{
+- (id) initWithURLRequest:(NSURLRequest*)request{
 	if(!(self=[super init])) return nil;
 	
 	self.URLRequest = request;
@@ -139,10 +144,10 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 	
 	return self;
 }
+
 - (void) dealloc{
 	if(self.connection) [self.connection cancel];
 }
-
 
 
 - (void) startAsynchronous{
@@ -150,7 +155,7 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 }
 
 
-#pragma mark Start
+#pragma mark -
 - (void) start{
 	
 	if(![self isReady]) return;
@@ -179,13 +184,19 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 	[self performSelectorOnMainThread:@selector(_requestStarted) withObject:nil waitUntilDone:[NSThread isMainThread]];
 }
 - (void) _requestStarted{
-	if(self.delegate && [self.delegate respondsToSelector:self.didStartSelector])
+	if(self.delegate && [self.delegate respondsToSelector:didStartSelector]) 
 		[self.delegate performSelector:self.didStartSelector withObject:self];
 	
 #if NS_BLOCKS_AVAILABLE
-	if(self.startedBlock) self.startedBlock();
+	if(startedBlock) startedBlock();
 #endif
 }
+
+
+
+
+
+
 
 
 - (void) _completeRequest{
@@ -217,8 +228,8 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 			[[NSFileManager defaultManager] moveItemAtPath:self.temporaryFileDownloadPath toPath:self.downloadDestinationPath error:&moveError];
 			
 			if (moveError){
-				NSString *str = [NSString stringWithFormat:@"Failed to move file from '%@' to '%@'",self.temporaryFileDownloadPath,self.downloadDestinationPath];
-				NSDictionary *userInfo = @{NSLocalizedDescriptionKey: str,NSUnderlyingErrorKey: moveError};
+				NSDictionary *str = [NSString stringWithFormat:@"Failed to move file from '%@' to '%@'",self.temporaryFileDownloadPath,self.downloadDestinationPath];
+				NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:str,NSLocalizedDescriptionKey,moveError,NSUnderlyingErrorKey,nil];
 				self.error = [NSError errorWithDomain:TKNetworkRequestErrorDomain code:TKFileManagementError userInfo:userInfo];
 			}
 		}
@@ -236,47 +247,22 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 
 	
 }
+
 - (void) _requestFinished{
 
 	if(self.delegate && [self.delegate respondsToSelector:self.didFinishSelector]) 
 		[self.delegate performSelector:self.didFinishSelector withObject:self];
 
 #if NS_BLOCKS_AVAILABLE
-	if(self.finishedBlock) self.finishedBlock();
-	
-	if(self.responseBlock)
-		self.responseBlock(self.responseData,self.statusCode,self.error);
-	
-	
-	if(self.JSONResponseBlock){
-		[self processJSON:self.responseData withCompletion:^(id object, NSError *error){
-			self.JSONResponseBlock(object,self.statusCode,error);
-		}];
-	}
-	
-	
-	if(self.JSONFinishedBlock){
-		[self processJSON:self.responseData withCompletion:^(id object, NSError *error){
-			self.JSONFinishedBlock(object,error);
-		}];
-	}
-	
+	if(completionBlock) completionBlock();
 #endif
 	
 }
+
 - (void) _requestFailed{
-	if(self.delegate && [self.delegate respondsToSelector:self.didFailSelector]) [self.delegate performSelector:self.didFailSelector withObject:self];
+	if(self.delegate && [self.delegate respondsToSelector:didFailSelector]) [self.delegate performSelector:didFailSelector withObject:self];
 #if NS_BLOCKS_AVAILABLE
-	if(self.failedBlock) self.failedBlock();
-	
-	if(self.responseBlock)
-		self.responseBlock(self.responseData,self.statusCode,self.error);
-	
-	if(self.JSONResponseBlock){
-		[self processJSON:self.responseData withCompletion:^(id object, NSError *error){
-			self.JSONResponseBlock(object,self.statusCode,self.error ? self.error : error);
-		}];
-	}
+	if(failureBlock) failureBlock();
 #endif
 }
 - (void) failWithError:(NSError *)theError{
@@ -288,7 +274,7 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 
 
 
-#pragma mark Delegate Methods for NSURLConnection
+#pragma mark - Delegate Methods for NSURLConnection
 - (void) connection:(NSURLConnection*)connection didFailWithError:(NSError*)e{
 	
 
@@ -328,8 +314,8 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 			self.fileHandler = [NSFileHandle fileHandleForWritingAtPath:self.temporaryFileDownloadPath];
 			
 			if(self.fileHandler==nil) {
-				NSString *str = [NSString stringWithFormat:@"Failed to create file from '%@'",self.temporaryFileDownloadPath];
-				NSDictionary *userInfo = @{NSLocalizedDescriptionKey: str};
+				NSDictionary *str = [NSString stringWithFormat:@"Failed to create file from '%@'",self.temporaryFileDownloadPath];
+				NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:str,NSLocalizedDescriptionKey,nil];
 				self.error = [NSError errorWithDomain:TKNetworkRequestErrorDomain code:TKFileManagementError userInfo:userInfo];
 				[self _completeRequest];
 			}
@@ -363,16 +349,16 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 	self.statusCode = [httpResponse statusCode];
 	self.responseHeaders = [httpResponse allHeaderFields];
 	
-	NSUInteger contentSize = [httpResponse expectedContentLength] > 0 ? [httpResponse expectedContentLength] : 0;
-	self.data = [[NSMutableData alloc] initWithCapacity:contentSize];
 	
 	if(self.statusCode > 199 && self.statusCode < 300)  {
 		_totalExpectedImageSize = (double)response.expectedContentLength;
+		NSUInteger contentSize = [httpResponse expectedContentLength] > 0 ? [httpResponse expectedContentLength] : 0;
+		self.data = [[NSMutableData alloc] initWithCapacity:contentSize];
 	} else {
 		NSString* statusError  = [NSString stringWithFormat:NSLocalizedString(@"HTTP Error: %ld", nil), self.statusCode];
-		NSDictionary* userInfo = @{NSLocalizedDescriptionKey: statusError};
+		NSDictionary* userInfo = [NSDictionary dictionaryWithObject:statusError forKey:NSLocalizedDescriptionKey];
 		self.error = [[NSError alloc] initWithDomain:TKNetworkRequestErrorDomain code:self.statusCode userInfo:userInfo];
-		//[self _completeRequest];
+		[self _completeRequest];
 	}
 	
 }
@@ -382,12 +368,22 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 
 
 
+#pragma mark - Blocks
+#if NS_BLOCKS_AVAILABLE
+- (void) setStartedBlock:(TKBasicBlock)aStartedBlock{
+	startedBlock = [aStartedBlock copy];
+}
+- (void) setCompletionBlock:(TKBasicBlock)aCompletionBlock{
+	completionBlock = [aCompletionBlock copy];
+}
+- (void) setFailedBlock:(TKBasicBlock)aFailedBlock{
+	failureBlock = [aFailedBlock copy];
+}
+#endif
 
 
 
-
-
-#pragma mark Properties
+#pragma mark - Properties
 - (BOOL) isConcurrent{
 	return YES;
 }
@@ -475,7 +471,7 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 }
 
 
-#pragma mark Network Activity
+#pragma mark - Network Activity
 + (BOOL) isNetworkInUse{
 	return runningRequestCount > 0;
 }
@@ -488,6 +484,8 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 		[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
 #endif
 }
+
+
 
 + (void) hideNetworkActivityIndicatorIfNeeeded{
 #if TARGET_OS_IPHONE
@@ -531,7 +529,6 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 }
 
 
-#pragma mark File Removal
 + (BOOL) removeFileAtPath:(NSString *)path error:(NSError **)err{
 	NSFileManager *fileManager = [[NSFileManager alloc] init];
 	
@@ -540,7 +537,7 @@ static inline NSString * TKKeyPathFromOperationState(TKOperationState state) {
 		[fileManager removeItemAtPath:path error:&removeError];
 		if (removeError) {
 			if (err) {
-				*err = [NSError errorWithDomain:TKNetworkRequestErrorDomain code:TKFileManagementError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to delete file at path '%@'",path],NSUnderlyingErrorKey: removeError}];
+				*err = [NSError errorWithDomain:TKNetworkRequestErrorDomain code:TKFileManagementError userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"Failed to delete file at path '%@'",path],NSLocalizedDescriptionKey,removeError,NSUnderlyingErrorKey,nil]];
 			}
 			return NO;
 		}

@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -29,12 +29,12 @@
  
  */
 
-@import UIKit;
-@import QuartzCore;
+#import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 
 @class TKCoverflowCoverView,TKCoverflowView,TKGradientView;
 
-#pragma mark - TKCoverflowViewDataSource
+#pragma mark -
 /** The data source of a `TKCoverflowView` object must adopt the `TKCoverflowViewDataSource` protocol. */
 @protocol TKCoverflowViewDataSource <NSObject>
 
@@ -53,7 +53,7 @@
 
 @end
 
-#pragma mark - TKCoverflowViewDelegate
+#pragma mark -
 /** The delegate of a `TKCoverflowView` object must adopt the `TKCoverflowViewDelegate` protocol. */
 @protocol TKCoverflowViewDelegate <NSObject>
 @optional
@@ -75,7 +75,7 @@
 
 
 
-#pragma mark - TKCoverflowView
+#pragma mark -
 /**
  `TKCoverflowView` imitates the coverflow you’d find in the iPod/Music app on the iPhone OS. Coverflow displays `TKCoverflowCoverView` objects. This view functions similar to the `UITableView` where covers that are off screen aren’t loaded until need. Thus, similar to the tableview, you can dequeue a cover view and hand it back to Coverflow View using the data source.
  */
@@ -142,7 +142,7 @@
 @end
 
 
-#pragma mark - TKCoverflowCoverView
+#pragma mark -
 /**
  `TKCoverflowCoverView` objects are the main views for displaying covers in `TKCoverflowView`.
  */

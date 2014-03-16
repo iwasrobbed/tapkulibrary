@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || https://github.com/devinross/tapkulibrary
+ tapku.com || https://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -34,24 +34,28 @@
 #import "TKHTTPRequest.h"
 #import "TKGlobal.h"
 
-#pragma mark - TKImageRequest
+#pragma mark -
 @interface TKImageRequest : TKHTTPRequest
-@property (nonatomic,strong) NSString *key;
+@property (strong,nonatomic) NSString *key;
 @end
 
 @implementation TKImageRequest
 @end
 
 
-#pragma mark - TKImageCache
-@interface TKImageCache (){
-	NSString *_cacheDirectoryPath;
-	NSMutableDictionary *_diskKeys;
-	NSMutableDictionary *_requestKeys;
-	dispatch_queue_t cache_queue;
-}
+
+@interface TKImageCache (private)
+
+- (NSString *) _filePathWithKey:(NSString *)key;
+- (BOOL) _imageExistsOnDiskWithKey:(NSString *)key;
+- (UIImage*) _imageFromDiskWithKey:(NSString*)key;
+- (void) _readImageFromDiskWithKey:(NSString*)key tag:(NSUInteger)tag;
+- (void) _sendRequestForURL:(NSURL*)url key:(NSString*)key tag:(NSUInteger)tag;
+
 @end
 
+
+#pragma mark -
 @implementation TKImageCache
 
 - (id) init{
@@ -119,9 +123,9 @@
 	
 	dispatch_async(cache_queue,^{
 		
-		if(_requestKeys[key]!=nil) return;
+		if([_requestKeys objectForKey:key]!=nil) return;
 		
-		_requestKeys[key] = [NSNull null];
+		[_requestKeys setObject:[NSNull null] forKey:key];
 		NSString *filePath = [self _filePathWithKey:key];
 		
 		
@@ -147,7 +151,7 @@
 	if(request.statusCode != 200){
 		dispatch_async(cache_queue,^{
 			
-			if(_requestKeys[key])
+			if([_requestKeys objectForKey:key])
 				[_requestKeys removeObjectForKey:key];
 			
 			[[NSFileManager defaultManager] removeItemAtPath:request.downloadDestinationPath error:nil];
@@ -158,7 +162,7 @@
 	
 	dispatch_async(cache_queue,^{
 		
-		if(_requestKeys[key])
+		if([_requestKeys objectForKey:key])
 			[_requestKeys removeObjectForKey:key];
 		
 		
@@ -166,10 +170,10 @@
 		if(cacheImage==nil) return;
 		
 		[self setObject:cacheImage forKey:request.key];
-		NSDictionary *dict = @{@"key": key,@"image": cacheImage,@"tag": @(request.tag)};
+		NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:key,@"key",cacheImage,@"image",[NSNumber numberWithUnsignedInt:request.tag],@"tag",nil];
 		
 		dispatch_async(dispatch_get_main_queue(), ^{
-			_diskKeys[request.key] = [NSNull null];
+			[_diskKeys setObject:[NSNull null] forKey:request.key];
 			[[NSNotificationCenter defaultCenter] postNotificationName:self.notificationName object:self userInfo:dict];
 		});
 		
@@ -183,7 +187,7 @@
 	dispatch_async(cache_queue,^{
 		NSString *key = request.key;
 		
-		if(_requestKeys[key])
+		if([_requestKeys objectForKey:key])
 			[_requestKeys removeObjectForKey:key];
 	});
 }
@@ -198,17 +202,7 @@
 }
 
 
-- (void) removeRequestForKey:(NSString*)key {
-	if(!_requestKeys[key]) return;
-	
-	[_requestKeys removeObjectForKey:key];
-	for (TKImageRequest* request in _imagesQueue.operations) {
-		if ([request.key isEqualToString:key]) {
-			request.delegate = nil;
-			[request cancel];
-		}
-	}
-}
+
 - (void) removeAllObjects{
 	[super removeAllObjects];
 	[self cancelOperations];
@@ -230,7 +224,7 @@
 		
 		
 		for( NSString *file in files ) {
-			if( ![file isEqual:@"."] && ![file isEqual:@".."] ) {
+            if (![file isEqualToString:@"."] && ![file isEqualToString:@".."]) {
 				NSString *path = [[self cacheDirectoryPath] stringByAppendingPathComponent:file];
 				[[NSFileManager defaultManager] removeItemAtPath:path error:&error];
 				
@@ -254,8 +248,8 @@
 		NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:&error];
 		
 		for( NSString *file in files ) {
-			if( ![file isEqual:@"."] && ![file isEqual:@".."] ) {
-				
+            if (![file isEqualToString:@"."] && ![file isEqualToString:@".."]) {
+
 				NSString *path = [path stringByAppendingPathComponent:file];
 				NSDate *created = [[[NSFileManager defaultManager] attributesOfItemAtPath:path error:NULL] fileCreationDate];
 				NSTimeInterval timeSince = fabs([created timeIntervalSinceNow]);
@@ -296,7 +290,7 @@
 - (BOOL) _imageExistsOnDiskWithKey:(NSString *)key{
 	
 	
-	if(_diskKeys) return _diskKeys[key]==nil ? NO : YES;
+	if(_diskKeys) return [_diskKeys objectForKey:key]==nil ? NO : YES;
 	
 	
 	
@@ -315,7 +309,7 @@
 		
 		if(cacheImage==nil) return;
 		[self setObject:cacheImage forKey:key];
-		NSDictionary *dict = @{@"key": key,@"image": cacheImage,@"tag": @(tag)};
+		NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:key,@"key",cacheImage,@"image",[NSNumber numberWithUnsignedInt:tag],@"tag",nil];
 		
 		
 		dispatch_async(dispatch_get_main_queue(), ^{
@@ -372,21 +366,21 @@
 	if(error) return;
 	
 	NSMutableArray *ar = [NSMutableArray arrayWithCapacity:files.count];
-	for(NSObject *obj in files){
+	for(NSObject *obj in files)
 		[ar addObject:[NSNull null]];
-	}
 	
 	_diskKeys = [[NSMutableDictionary alloc] initWithObjects:ar forKeys:files];
 	
 	
 }
 - (NSString *) cacheDirectoryPath{
-	if(_cacheDirectoryPath) return _cacheDirectoryPath;
-
-	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-	NSString *documentsDirectory = paths[0];
-	NSString *str = [documentsDirectory stringByAppendingPathComponent:_cacheDirectoryName];
-	_cacheDirectoryPath = [str copy];
+	
+	if(_cacheDirectoryPath==nil){
+		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+		NSString *documentsDirectory = [paths objectAtIndex:0];
+		NSString *str = [documentsDirectory stringByAppendingPathComponent:_cacheDirectoryName];
+		_cacheDirectoryPath = [str copy];
+	}
 	return _cacheDirectoryPath;
 }
 

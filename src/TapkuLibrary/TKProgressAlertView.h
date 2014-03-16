@@ -4,7 +4,7 @@
 //
 /*
  
- tapku || http://github.com/devinross/tapkulibrary
+ tapku.com || http://github.com/devinross/tapkulibrary
  
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -30,12 +30,11 @@
  */
 
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 #import "TKProgressBarView.h"
-#import "TKAlertViewController.h"
 
 /** A simple alert view with a progress view. */
-@interface TKProgressAlertView : TKAlertViewController
+@interface TKProgressAlertView : UIAlertView 
 
 /** Initializes a progress alert view with a title.
  @param title The title of the progress alert.
@@ -48,11 +47,19 @@
 ///----------------------------
 
 /** The progress bar view */
-@property (nonatomic,strong) TKProgressBarView *progressBar;
+@property (strong,nonatomic) TKProgressBarView *progressBar;
 
 /** The title label for the alert. */
-@property (nonatomic,strong) UILabel *label;
+@property (strong,nonatomic) UILabel *label;
 
+///----------------------------
+/// @name Displaying and hiding alert
+///----------------------------
 
+/** Show the alert */
+- (void) show;
+
+/** Hide the alert */
+- (void) hide;
 
 @end
