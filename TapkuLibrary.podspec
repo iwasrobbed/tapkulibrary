@@ -3,7 +3,6 @@ Pod::Spec.new do |s|
   s.version       = '0.3.4'
   s.platform      = :ios
   s.author        = { 'Devin Ross' => 'devin@devinsheaven.com' }
-  s.license       = { :type => 'MIT', :file => 'License.txt' }
   s.homepage      = 'https://github.com/devinross/tapkulibrary'
   s.summary       = 'tap + haiku = tapku, a well crafted open source iOS framework'
   s.description   = 'TapkuLibrary is an iOS library built on Cocoa and UIKit intended for broad ' \

@@ -589,10 +589,11 @@
 			timeRect = CGRectMake(HORIZONTAL_OFFSET, VERTICAL_OFFSET + i * VERTICAL_DIFF, TIME_WIDTH + PERIOD_WIDTH, FONT_SIZE + 4.0);
 		}
 		
-		[time drawInRect:CGRectIntegral(timeRect)
-			   withFont:timeFont 
-		  lineBreakMode:NSLineBreakByWordWrapping
-			  alignment:NSTextAlignmentRight];
+        NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+        [style setLineBreakMode:NSLineBreakByWordWrapping];
+        [style setAlignment:NSTextAlignmentRight];
+        [time drawInRect:CGRectIntegral(timeRect) withAttributes:@{NSFontAttributeName : timeFont,
+                                                                   NSParagraphStyleAttributeName : style}];
 		
 		// Draw period
 		// Only if it is not noon
@@ -601,10 +602,9 @@
 			
 			NSString *period = [self.periods objectAtIndex:i];
 			
-			[period drawInRect:CGRectIntegral(CGRectMake(HORIZONTAL_OFFSET + TIME_WIDTH, VERTICAL_OFFSET + i * VERTICAL_DIFF, PERIOD_WIDTH, FONT_SIZE + 4.0)) 
-					  withFont:periodFont 
-				 lineBreakMode:NSLineBreakByWordWrapping
-					 alignment:NSTextAlignmentRight];
+            [period drawInRect:CGRectIntegral(CGRectMake(HORIZONTAL_OFFSET + TIME_WIDTH, VERTICAL_OFFSET + i * VERTICAL_DIFF, PERIOD_WIDTH, FONT_SIZE + 4.0))
+                withAttributes:@{NSFontAttributeName : periodFont,
+                                 NSParagraphStyleAttributeName : style}];
 		}
 		
 		// Draw straight line

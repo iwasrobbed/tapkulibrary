@@ -145,25 +145,33 @@
 								  self.bounds.origin.y + VERTICAL_OFFSET, 
 								  self.bounds.size.width - 2 * HORIZONTAL_OFFSET, 
 								  availableHeight);
-	
+    
     // Drawing code
 	// Draw both title and location
 	if (self.title) {
 		
-		titleSize = [self.title drawInRect:CGRectIntegral(titleRect) 
-								  withFont:[UIFont boldSystemFontOfSize:FONT_SIZE] 
-							 lineBreakMode:(availableHeight < VERTICAL_DIFF ? NSLineBreakByTruncatingTail : NSLineBreakByWordWrapping)
-								 alignment:NSTextAlignmentLeft];
+        NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+        [style setLineBreakMode:(availableHeight < VERTICAL_DIFF ? NSLineBreakByTruncatingTail : NSLineBreakByWordWrapping)];
+        [style setAlignment:NSTextAlignmentLeft];
+        UIFont *titleFont = [UIFont boldSystemFontOfSize:FONT_SIZE];
+        NSDictionary *attributes = @{NSFontAttributeName : titleFont,
+                                     NSParagraphStyleAttributeName : style};
+        titleSize = [self.title sizeWithAttributes:attributes];
+        [self.title drawInRect:CGRectIntegral(titleRect) withAttributes:attributes];
+        
 	}
 	if (titleSize.height + FONT_SIZE < availableHeight) {
 		if (self.location) {
 			locationRect.origin.y += titleSize.height;
 			locationRect.size.height -= titleSize.height;
-			UILineBreakMode breaking = (locationRect.size.height < FONT_SIZE + VERTICAL_OFFSET ? NSLineBreakByTruncatingTail : NSLineBreakByWordWrapping);
-			[self.location drawInRect:CGRectIntegral(locationRect) 
-						  withFont:[UIFont systemFontOfSize:FONT_SIZE] 
-					 lineBreakMode:breaking
-						 alignment:NSTextAlignmentLeft];
+            
+            NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+            [style setLineBreakMode:(locationRect.size.height < FONT_SIZE + VERTICAL_OFFSET ? NSLineBreakByTruncatingTail : NSLineBreakByWordWrapping)];
+            [style setAlignment:NSTextAlignmentLeft];
+            UIFont *locationFont = [UIFont systemFontOfSize:FONT_SIZE];
+            NSDictionary *attributes = @{NSFontAttributeName : locationFont,
+                                         NSParagraphStyleAttributeName : style};
+            [self.location drawInRect:CGRectIntegral(titleRect) withAttributes:attributes];
 			
 		}
 	}		

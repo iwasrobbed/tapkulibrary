@@ -285,10 +285,14 @@
 	NSString *str = [NSString stringWithFormat:@"%d",day];
 	
 	r.size.height -= 2;
-	[str drawInRect: r
-		   withFont: f1
-	  lineBreakMode: NSLineBreakByWordWrapping 
-		  alignment: NSTextAlignmentCenter];
+    
+    NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+    [style setLineBreakMode:NSLineBreakByWordWrapping];
+    [style setAlignment:NSTextAlignmentCenter];
+    NSDictionary *attributes = @{NSFontAttributeName : f1,
+                                 NSParagraphStyleAttributeName : style,
+                                 NSForegroundColorAttributeName : [UIColor lightGrayColor]};
+    [str drawInRect:r withAttributes:attributes];
 	
     // TODO: UPDATE WHEN LIBRARY IS UPDATED
     /*
@@ -304,7 +308,7 @@
 	}
      */
     
-    r.size.height = 10;
+    r.size.height = 20;
     r.origin.y += 18;
     
     NSString *solunarMarks = @"";
@@ -314,11 +318,11 @@
     if (mark == 4) { solunarMarks = @"••••"; }
     if (mark == 5) { solunarMarks = @"•••••"; }
     
-    [solunarMarks drawInRect: r
-            withFont: f2
-       lineBreakMode: NSLineBreakByWordWrapping
-           alignment: NSTextAlignmentCenter];
-
+    UIFont *dotFont = [UIFont systemFontOfSize:16.f];
+    NSDictionary *f2attributes = @{NSFontAttributeName : dotFont,
+                                   NSParagraphStyleAttributeName : style,
+                                   NSForegroundColorAttributeName : [UIColor lightGrayColor]};
+    [solunarMarks drawInRect:r withAttributes:f2attributes];
 
 }
 - (void) drawRect:(CGRect)rect {
